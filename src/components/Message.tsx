@@ -1,5 +1,5 @@
 import { inject, observer } from "mobx-react";
-import React, { Component } from "react";
+import { Component } from "react";
 import { Store } from "../store";
 
 @inject("store")

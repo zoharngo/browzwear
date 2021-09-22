@@ -10,7 +10,6 @@ import { Message } from './Message';
 export class Board extends Component<{ store?: Store }, {}> {
   render() {
     const { players, cards } = this.props.store as Store;
-
     return (
       <div className='board'>
         <PlayerInfo player={players[0]} />
