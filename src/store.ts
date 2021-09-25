@@ -38,6 +38,8 @@ export class Store {
   }
 
   @action _initGame = (): void => {
+    this.cards = [];
+    this.players = [];
     playersArray.forEach((p) => this.players.push(p));
     cardNames.forEach((name, index) => {
       const card1: ICard = {
@@ -91,11 +93,15 @@ export class Store {
   @action setWinner = (playerId: number) => {
     this.players.find((player) => player.id === playerId)!.isWinner = true;
   };
- /**
-  * @description filter revealed and not matched card 
-  */
+  /**
+   * @description filter revealed and not matched card
+   */
   @computed get revealedCards(): ICard[] {
     return this.cards.filter(({ isRevealed, isMatched }) => isRevealed && !isMatched);
+  }
+
+  @computed get even(): boolean {
+    return this.players.filter(({ points }) => points === 3).length === 2;
   }
 
   @computed get winner(): IPlayer | undefined {
@@ -108,11 +114,9 @@ const store = new Store();
 reaction(
   () => store.revealedCards,
   (revealedCards) => {
-    console.log(revealedCards);
     if (revealedCards.length === 2) {
       const currnetTurnPlayer = store.players.find(({ isTurn }) => isTurn);
       const nextTurnPlayer = store.players.find(({ isTurn }) => !isTurn);
-      console.log('revealedCards[0].id', revealedCards[0].id);
 
       if (revealedCards[0].type === revealedCards[1].type) {
         store.setMatchCard(revealedCards[0].id);
@@ -127,11 +131,10 @@ reaction(
       store.setNextPlayerTurn(nextTurnPlayer!.id, currnetTurnPlayer!.id);
 
       if (store.cards.every((card) => card.isMatched)) {
-        if (currnetTurnPlayer!.points === nextTurnPlayer!.points) {
-          alert(`even`);
-        } else if (currnetTurnPlayer!.points > nextTurnPlayer!.points) {
+        if (currnetTurnPlayer!.points > nextTurnPlayer!.points) {
           store.setWinner(currnetTurnPlayer!.id);
-          alert(`Player ${currnetTurnPlayer!.id}`);
+        } else if (currnetTurnPlayer!.points < nextTurnPlayer!.points) {
+          store.setWinner(nextTurnPlayer!.id);
         }
       }
     }
